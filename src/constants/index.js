@@ -1,0 +1,12 @@
+export const FORWARD = '@@MyApp/worm/FORWAD';
+export const BACKWARD = '@@MyApp/worm/BACKWARD';
+export const UP = '@@MyApp/worm/UP';
+export const DOWN = '@@MyApp/worm/DOWN';
+export const SET_POSITION = '@@MyApp/worm/SET_POSITION';
+export const SAVE_BOX_INFO = '@@MyApp/worm/SAVE_BOX_INFO';
+export const GROW = '@@MyApp/worm/GROW';
+export const SHRINK = '@@MyApp/worm/SHRINK';
+export const SAVE_HISTORY = '@@MyApp/history/SAVE_HISTORY';
+export const SET_REPLAY_MODE = '@@MyApp/history/SET_REPLAY_MODE';
+export const CREATE_PIZZA = '@@MyApp/pizza/CREATE_PIZZA';
+export const UPDATE_PIZZA = '@@MyApp/pizza/UPDATE_PIZZA';
