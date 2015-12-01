@@ -10,6 +10,11 @@ class Worm extends Component {
     replayInProgress: PropTypes.bool.isRequired,
   }
 
+  componentDidMount() {
+    const { props, refs } = this;
+    props.saveBoxInfo(refs.worm.offsetWidth, refs.worm.offsetHeight);
+  }
+
   componentWillReceiveProps(nextProps) {
     const { props, refs } = this;
     if (nextProps.worm.get('size') !== props.worm.get('size')) {
