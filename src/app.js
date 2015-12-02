@@ -21,7 +21,7 @@ ReactDOM.render(
     <Provider store={ store }>
       <PizzaKing />
     </Provider>
-    <DebugPanel top left bottom>
+    <DebugPanel top right bottom>
       <DevTools store={ store }
                 monitor={ LogMonitor }
                 visibleOnLoad={ false } />
