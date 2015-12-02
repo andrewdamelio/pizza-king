@@ -1,7 +1,4 @@
-export const FORWARD = '@@MyApp/worm/FORWAD';
-export const BACKWARD = '@@MyApp/worm/BACKWARD';
-export const UP = '@@MyApp/worm/UP';
-export const DOWN = '@@MyApp/worm/DOWN';
+export const MOVEMENT = '@@MyApp/worm/MOVEMENT';
 export const SET_POSITION = '@@MyApp/worm/SET_POSITION';
 export const SAVE_BOX_INFO = '@@MyApp/worm/SAVE_BOX_INFO';
 export const GROW = '@@MyApp/worm/GROW';

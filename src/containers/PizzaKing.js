@@ -139,6 +139,7 @@ class CounterPage extends Component {
 
             <Worm  worm={ props.worm }
                    pizza={ props.pizza }
+                   worms={ props.history.get('worms') }
                    replayInProgress={ props.history.get('replay') }
                    saveBoxInfo={ props.saveBoxInfo } />
           </div>

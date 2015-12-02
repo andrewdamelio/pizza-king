@@ -1,8 +1,5 @@
 import {
-  FORWARD,
-  BACKWARD,
-  UP,
-  DOWN,
+  MOVEMENT,
   SAVE_BOX_INFO,
   SHRINK,
   GROW,
@@ -34,33 +31,19 @@ export function setPosition(posX, posY, direction, size) {
 
 export function shrink() {
   return (dispatch, getState) => {
-    if (getState().worm.get('size') > 10 ) {
-      dispatch({
-        type: SAVE_HISTORY,
-        payload: {
-          data: getState().worm,
-        },
-      });
-      dispatch({
-        type: SHRINK,
-      });
-    }
+    dispatch({
+      type: SHRINK,
+    });
+    saveHistory(dispatch, getState);
   };
 }
 
 export function grow() {
   return (dispatch, getState) => {
-    if (getState().worm.get('size') < 120 ) {
-      dispatch({
-        type: SAVE_HISTORY,
-        payload: {
-          data: getState().worm,
-        },
-      });
-      dispatch({
-        type: GROW,
-      });
-    }
+    dispatch({
+      type: GROW,
+    });
+    saveHistory(dispatch, getState);
   };
 }
 
@@ -72,7 +55,7 @@ export function forward() {
     });
 
     if (!getState().history.get('replay') && (getState().worm.get('positionX') < (window.innerWidth - 425 ) || gameOver.size === 0)) {
-      moveWorm(dispatch, getState, FORWARD);
+      moveWorm(dispatch, getState, 'forward');
     }
   };
 }
@@ -80,7 +63,7 @@ export function forward() {
 export function backward() {
   return (dispatch, getState) => {
     if (!getState().history.get('replay') && getState().worm.get('positionX') > 15) {
-      moveWorm(dispatch, getState, BACKWARD);
+      moveWorm(dispatch, getState, 'backward');
     }
   };
 }
@@ -88,7 +71,7 @@ export function backward() {
 export function up() {
   return (dispatch, getState) => {
     if (!getState().history.get('replay') && getState().worm.get('positionY') > 35) {
-      moveWorm(dispatch, getState, UP);
+      moveWorm(dispatch, getState, 'up');
     }
   };
 }
@@ -96,19 +79,25 @@ export function up() {
 export function down() {
   return (dispatch, getState) => {
     if (!getState().history.get('replay') && getState().worm.get('positionY') < window.innerHeight - 200) {
-      moveWorm(dispatch, getState, DOWN);
+      moveWorm(dispatch, getState, 'down');
     }
   };
 }
 
-function moveWorm(dispatch, getState, direction) {
-  dispatch({
-    type: direction,
-  });
+
+function saveHistory(dispatch, getState) {
   dispatch({
     type: SAVE_HISTORY,
     payload: {
-      data: getState().worm,
+      worms: getState().worm,
     },
   });
+}
+
+function moveWorm(dispatch, getState, direction) {
+  dispatch({
+    type: MOVEMENT,
+    payload: direction,
+  });
+  saveHistory(dispatch, getState);
 }
