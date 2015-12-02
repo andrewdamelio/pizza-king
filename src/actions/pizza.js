@@ -1,5 +1,6 @@
 import Immutable from 'immutable';
-import { GROW, UPDATE_PIZZA, CREATE_PIZZA  } from '../constants';
+import doWorldsCollide from '../utils/doWorldsCollide';
+import { SAVE_HISTORY, GROW, UPDATE_PIZZA, CREATE_PIZZA  } from '../constants';
 
 export function createPizza(pizza) {
   return {
@@ -20,18 +21,18 @@ export function detectPizza() {
     const wormState = getState().worm;
     const pizza = getState().pizza;
 
-    // ?? ¯\_(ツ)_/¯
+    const wormBox = {
+      x: wormState.get('positionX'),
+      y: wormState.get('positionY'),
+      width: wormState.get('width'),
+      height: wormState.get('height'),
+    };
+
+    //  ¯\_(ツ)_/¯
     const pizzaCopy = Immutable.List(JSON.parse(JSON.stringify(pizza)));
 
     let dirty = false;
     const pizzaParty = pizzaCopy.map((value) => {
-      const wormBox = {
-        x: wormState.get('positionX'),
-        y: wormState.get('positionY'),
-        width: wormState.get('width'),
-        height: wormState.get('height'),
-      };
-
       const pizzaBox = {
         x: value.x,
         y: value.y,
@@ -51,20 +52,19 @@ export function detectPizza() {
 
     if (dirty) {
       if (wormState.get('size') < 120 ) {
-        dispatch({
-          type: GROW,
-        });
+        dispatch({ type: GROW });
+        saveHistory(dispatch, getState);
       }
       dispatch(updatePizza(pizzaParty));
     }
   };
 }
 
-function doWorldsCollide(a, b) {
-  return !(
-    ((a.y + a.height) < (b.y)) ||
-    (a.y > (b.y + b.height)) ||
-    ((a.x + a.width) < b.x) ||
-    (a.x > (b.x + b.width))
-  );
+function saveHistory(dispatch, getState) {
+  dispatch({
+    type: SAVE_HISTORY,
+    payload: {
+      worms: getState().worm,
+    },
+  });
 }

@@ -10,7 +10,9 @@ const counterReducer = handleActions({
     });
   },
   [SAVE_HISTORY]: (state, action) => {
-    return state.update('worms', (value) => value.push(action.payload.data));
+    return state.merge({
+      worms: state.get('worms').push(action.payload.worms),
+    });
   },
 }, fromJS({
   worms: [],

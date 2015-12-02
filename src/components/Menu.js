@@ -5,7 +5,7 @@ const Menu = ({ replayInProgress, showReplay, history, setWormPosition }) => {
   return (
     <nav className="border-bottom">
       <button className="btn"
-              disabled={ replayInProgress }
+              disabled={ replayInProgress || history.size === 0 }
               onClick={ showReplay }>Replay</button>
 
       <input type="range"

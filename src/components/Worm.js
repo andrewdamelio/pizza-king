@@ -7,17 +7,13 @@ class Worm extends Component {
   static propTypes = {
     worm: PropTypes.object.isRequired,
     pizza: PropTypes.object.isRequired,
+    saveBoxInfo: PropTypes.func.isRequired,
     replayInProgress: PropTypes.bool.isRequired,
   }
 
-  componentDidMount() {
+  componentDidUpdate(prevProps) {
     const { props, refs } = this;
-    props.saveBoxInfo(refs.worm.offsetWidth, refs.worm.offsetHeight);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { props, refs } = this;
-    if (nextProps.worm.get('size') !== props.worm.get('size')) {
+    if (prevProps.worm.get('size') !== props.worm.get('size') && !props.replayInProgress) {
       props.saveBoxInfo(refs.worm.offsetWidth, refs.worm.offsetHeight);
     }
   }

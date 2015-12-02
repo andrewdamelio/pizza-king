@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import Radium from 'radium';
 import { connect } from 'react-redux';
+import getRandomPosition from '../utils/getRandomPosition';
 import Pizza from '../components/Pizza';
 import Menu from '../components/Menu';
 import Worm from '../components/Worm';
@@ -17,6 +18,8 @@ import {
   up,
   down,
 } from '../actions/worm';
+
+const PIZZA_ARMY_SIZE = 12;
 
 function mapStateToProps(state) {
   return {
@@ -40,14 +43,6 @@ function mapDispatchToProps(dispatch) {
     setReplayMode: (flag) => dispatch(setReplayMode(flag)),
     saveBoxInfo: (width, height) => dispatch(saveBoxInfo(width, height)),
   };
-}
-
-function getRandomPosition() {
-  const xLimit = window.innerWidth - 425;
-  const yLimit = window.innerHeight - 385;
-  const randomX = Math.floor(Math.random() * xLimit) + 25;
-  const randomY = Math.floor(Math.random() * yLimit) + 75;
-  return [randomX, randomY];
 }
 
 class CounterPage extends Component {
@@ -109,8 +104,8 @@ class CounterPage extends Component {
 
   componentDidMount() {
     window.addEventListener('keydown', this._handleMovement);
-    for (let i = 1; i <= 12; i++) {
-      this.props.createPizza(getRandomPosition());
+    for (let i = 1; i <= PIZZA_ARMY_SIZE; i++) {
+      this.props.createPizza(getRandomPosition(), i);
     }
   }
 
@@ -139,7 +134,6 @@ class CounterPage extends Component {
 
             <Worm  worm={ props.worm }
                    pizza={ props.pizza }
-                   worms={ props.history.get('worms') }
                    replayInProgress={ props.history.get('replay') }
                    saveBoxInfo={ props.saveBoxInfo } />
           </div>

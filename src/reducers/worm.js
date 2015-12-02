@@ -56,8 +56,8 @@ const wormReducer = handleActions({
   positionY: 125,
   direction: 1,
   size: 10,
-  width: 52,
-  height: 77,
+  width: 13,
+  height: 15,
 }));
 
 export default wormReducer;
