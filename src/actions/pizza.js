@@ -1,6 +1,6 @@
 import Immutable from 'immutable';
 import doWorldsCollide from '../utils/doWorldsCollide';
-import { SAVE_HISTORY, GROW, UPDATE_PIZZA, CREATE_PIZZA  } from '../constants';
+import { GROW, UPDATE_PIZZA, CREATE_PIZZA  } from '../constants';
 
 export function createPizza(pizza) {
   return {
@@ -18,7 +18,7 @@ export function updatePizza(pizza) {
 
 export function detectPizza() {
   return (dispatch, getState) => {
-    const wormState = getState().worm;
+    const wormState = getState().history.get('worms').get(getState().history.get('idx'));
     const pizza = getState().pizza;
 
     const wormBox = {
@@ -53,18 +53,8 @@ export function detectPizza() {
     if (dirty) {
       if (wormState.get('size') < 120 ) {
         dispatch({ type: GROW });
-        saveHistory(dispatch, getState);
       }
       dispatch(updatePizza(pizzaParty));
     }
   };
-}
-
-function saveHistory(dispatch, getState) {
-  dispatch({
-    type: SAVE_HISTORY,
-    payload: {
-      worms: getState().worm,
-    },
-  });
 }

@@ -5,5 +5,7 @@ export const GROW = '@@MyApp/worm/GROW';
 export const SHRINK = '@@MyApp/worm/SHRINK';
 export const SAVE_HISTORY = '@@MyApp/history/SAVE_HISTORY';
 export const SET_REPLAY_MODE = '@@MyApp/history/SET_REPLAY_MODE';
+export const UPDATE_INDEX = '@@MyApp/history/UPDATE_INDEX';
 export const CREATE_PIZZA = '@@MyApp/pizza/CREATE_PIZZA';
 export const UPDATE_PIZZA = '@@MyApp/pizza/UPDATE_PIZZA';
+

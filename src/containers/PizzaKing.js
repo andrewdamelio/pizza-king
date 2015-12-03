@@ -5,7 +5,7 @@ import getRandomPosition from '../utils/getRandomPosition';
 import Pizza from '../components/Pizza';
 import Menu from '../components/Menu';
 import Worm from '../components/Worm';
-import { setReplayMode } from '../actions/history';
+
 import { detectPizza, createPizza } from '../actions/pizza';
 
 import {
@@ -17,13 +17,14 @@ import {
   backward,
   up,
   down,
-} from '../actions/worm';
+  updateIndex,
+  setReplayMode,
+} from '../actions/history';
 
 const PIZZA_ARMY_SIZE = 12;
 
 function mapStateToProps(state) {
   return {
-    worm: state.worm,
     history: state.history,
     pizza: state.pizza,
   };
@@ -39,6 +40,7 @@ function mapDispatchToProps(dispatch) {
     shrink: () => dispatch(shrink()),
     detectPizza: () => dispatch(detectPizza()),
     createPizza: (pizza) => dispatch(createPizza(pizza)),
+    updateIndex: (index) => dispatch(updateIndex(index)),
     setPosition: (posX, posY, direction, size) => dispatch(setPosition(posX, posY, direction, size)),
     setReplayMode: (flag) => dispatch(setReplayMode(flag)),
     saveBoxInfo: (width, height) => dispatch(saveBoxInfo(width, height)),
@@ -47,7 +49,6 @@ function mapDispatchToProps(dispatch) {
 
 class CounterPage extends Component {
   static propTypes = {
-    worm: PropTypes.object.isRequired,
     history: PropTypes.object.isRequired,
     pizza: PropTypes.object.isRequired,
     forward: PropTypes.func.isRequired,
@@ -57,6 +58,7 @@ class CounterPage extends Component {
     setPosition: PropTypes.func.isRequired,
     setReplayMode: PropTypes.func.isRequired,
     grow: PropTypes.func.isRequired,
+    updateIndex: PropTypes.func.isRequired,
     shrink: PropTypes.func.isRequired,
     createPizza: PropTypes.func.isRequired,
     detectPizza: PropTypes.func.isRequired,
@@ -93,7 +95,7 @@ class CounterPage extends Component {
       props.setReplayMode(true);
       props.history.get('worms').map((worm, idx) => {
         setTimeout(() => {
-          props.setPosition(worm.get('positionX'), worm.get('positionY'), worm.get('direction'), worm.get('size'));
+          props.updateIndex(idx);
           if ((idx + 1) === props.history.get('worms').size) {
             props.setReplayMode(false);
           }
@@ -122,19 +124,17 @@ class CounterPage extends Component {
 
     return (
       <section>
-        <Menu replayInProgress={ props.history.get('replay') }
-              showReplay={ this._handleReplay }
-              history={ props.history.get('worms') }
-              setWormPosition={ props.setPosition } />
+        <Menu showReplay={ this._handleReplay }
+              history={ props.history }
+              updateIndex={ props.updateIndex } />
 
         <div className="flex flex-row">
           <div style={ styles.gameContainer }
                className="border">
             { pizzaParty}
 
-            <Worm  worm={ props.worm }
+            <Worm  history={ props.history }
                    pizza={ props.pizza }
-                   replayInProgress={ props.history.get('replay') }
                    saveBoxInfo={ props.saveBoxInfo } />
           </div>
 

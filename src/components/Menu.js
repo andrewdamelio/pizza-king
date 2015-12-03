@@ -1,23 +1,39 @@
-import React from 'react';
-import Radium from 'radium';
+import React, { PropTypes } from 'react';
 
-const Menu = ({ replayInProgress, showReplay, history, setWormPosition }) => {
+const Menu = ({ showReplay, history, updateIndex }) => {
+  const replayInProgress = history.get('replay');
+  const wormHistory = history.get('worms');
+
   return (
     <nav className="border-bottom">
       <button className="btn"
-              disabled={ replayInProgress || history.size === 0 }
+              disabled={ replayInProgress || wormHistory.size === 0 }
               onClick={ showReplay }>Replay</button>
 
       <input type="range"
              disabled={ replayInProgress }
              min="0"
-             max={ history.size > 0 ? history.size - 1 : history.size  }
+             max={ wormHistory.size > 0 ? wormHistory.size - 1 : wormHistory.size  }
+             onBlur={ (e) => {
+               updateIndex(wormHistory.size - 1);
+               e.target.value = 0;
+             }}
+             onMouseUp={ (e) => {
+               updateIndex(wormHistory.size - 1);
+               e.target.value = 0;
+             }}
              onChange={ (e) => {
-               const thing = history.toJS()[e.target.value];
-               setWormPosition(thing.positionX, thing.positionY, thing.direction, thing.size);
-             } } />
+               updateIndex(e.target.value);
+             }} />
     </nav>
   );
 };
 
-export default Radium(Menu);
+Menu.displayName = 'Menu';
+Menu.propTypes = {
+  showReplay: PropTypes.func.isRequired,
+  history: PropTypes.object.isRequired,
+  updateIndex: PropTypes.func.isRequired,
+};
+
+export default Menu;

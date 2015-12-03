@@ -5,21 +5,35 @@ import Radium from 'radium';
 class Worm extends Component {
 
   static propTypes = {
-    worm: PropTypes.object.isRequired,
     pizza: PropTypes.object.isRequired,
+    history: PropTypes.object.isRequired,
     saveBoxInfo: PropTypes.func.isRequired,
-    replayInProgress: PropTypes.bool.isRequired,
   }
 
   componentDidUpdate(prevProps) {
     const { props, refs } = this;
-    if (prevProps.worm.get('size') !== props.worm.get('size') && !props.replayInProgress) {
+    const replayInProgress = props.history.get('replay');
+    const idx = props.history.get('idx');
+    const oldIdx = prevProps.history.get('idx');
+    const worm = props.history.get('worms').get(idx);
+    const oldWorm = prevProps.history.get('worms').get(oldIdx);
+
+
+    if (worm && oldWorm && (oldWorm.get('size') !== worm.get('size')) && !replayInProgress) {
       props.saveBoxInfo(refs.worm.offsetWidth, refs.worm.offsetHeight);
     }
   }
 
   render() {
-    const {  worm, pizza, replayInProgress } = this.props;
+    const {  pizza, history } = this.props;
+    const replayInProgress = history.get('replay');
+    const idx = history.get('idx');
+    const worm = history.get('worms').get(idx);
+
+    if (!worm) {
+      return null;
+    }
+
     const crown = {
       position: 'relative',
       bottom: worm.get('size') / 1.5,
