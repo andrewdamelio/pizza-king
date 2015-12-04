@@ -55,17 +55,13 @@ class Worm extends Component {
     });
 
     return (
-      <div className="p1">
-        <div>
-          <div ref="worm"
-               style={{ ...player, ...{ zIndex: -9999 } }}>
-            🐛
-            { gameOver.size === 0 && !replayInProgress
-              ?  <span style={ crown }>👑</span>
-              : ''
-            }
-          </div>
-        </div>
+      <div ref="worm"
+           style={{ ...player, ...{ zIndex: -9999 } }}>
+        🐛
+        { gameOver.size === 0 && !replayInProgress
+          ?  <span style={ crown }>👑</span>
+          : ''
+        }
       </div>
     );
   }

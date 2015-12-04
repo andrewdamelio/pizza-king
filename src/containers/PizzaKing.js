@@ -135,7 +135,7 @@ class CounterPage extends Component {
 
         <div className="flex flex-row">
           <div style={ styles.gameContainer }
-               className="border">
+               className="border flex-grow">
             { pizzaParty}
 
             <Worm  history={ props.history }
@@ -143,7 +143,7 @@ class CounterPage extends Component {
                    saveBoxInfo={ props.saveBoxInfo } />
           </div>
 
-          <div className="border flex flex-center p2"
+          <div className="p2 fit"
                style={ styles.titleContainer }>
 
             <div className="flex flex-column"
@@ -160,12 +160,12 @@ class CounterPage extends Component {
 
 const styles = {
   gameContainer: {
-    width: '80%',
-    height: '90vh',
+    height: '100%',
+    overflow: 'scroll',
+    position: 'relative',
   },
   titleContainer: {
-    width: '20%',
-    height: '90vh',
+    height: '100%',
   },
   titleContent: {
     width: '100%',
