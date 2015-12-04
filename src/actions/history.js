@@ -63,38 +63,70 @@ export function grow() {
   };
 }
 
-export function forward() {
-  return (dispatch) => {
-    dispatch({
-      type: MOVEMENT,
-      payload: 'forward',
-    });
+
+function checkEdges(getState, direction) {
+  const history = getState().history;
+  const idx = history.get('idx');
+  const worm = history.get('worms').get(idx);
+
+  switch (direction) {
+  case 'right':
+    return worm.get('positionX') < window.innerWidth - 190;
+  case 'left':
+    return worm.get('positionX') > 0;
+  case 'up':
+    return worm.get('positionY') > 0;
+  case 'down':
+    return worm.get('positionY') < window.innerHeight - 37;
+  default:
+    break;
+  }
+}
+
+export function forward(player) {
+  return (dispatch, getState) => {
+    if (checkEdges(getState, 'right')) {
+      dispatch({
+        type: MOVEMENT,
+        payload: 'forward',
+        player: player,
+      });
+    }
   };
 }
 
-export function backward() {
-  return (dispatch) => {
-    dispatch({
-      type: MOVEMENT,
-      payload: 'backward',
-    });
+export function backward(player) {
+  return (dispatch, getState) => {
+    if (checkEdges(getState, 'left')) {
+      dispatch({
+        type: MOVEMENT,
+        payload: 'backward',
+        player: player,
+      });
+    }
   };
 }
 
-export function up() {
-  return (dispatch) => {
-    dispatch({
-      type: MOVEMENT,
-      payload: 'up',
-    });
+export function up(player) {
+  return (dispatch, getState) => {
+    if (checkEdges(getState, 'up')) {
+      dispatch({
+        type: MOVEMENT,
+        payload: 'up',
+        player: player,
+      });
+    }
   };
 }
 
-export function down() {
-  return (dispatch) => {
-    dispatch({
-      type: MOVEMENT,
-      payload: 'down',
-    });
+export function down(player) {
+  return (dispatch, getState) => {
+    if (checkEdges(getState, 'down')) {
+      dispatch({
+        type: MOVEMENT,
+        payload: 'down',
+        player: player,
+      });
+    }
   };
 }

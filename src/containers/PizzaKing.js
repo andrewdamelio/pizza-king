@@ -67,7 +67,7 @@ class CounterPage extends Component {
   _handleMovement = (e) => {
     const { props } = this;
 
-    if ( e.keyCode >= 37 && e.keyCode <= 40) {
+    if ( e.keyCode >= 37 && e.keyCode <= 40 && !props.history.get('replay')) {
       if (e.keyCode === 38) {
         props.up();
       } else if (e.keyCode === 40) {
@@ -143,8 +143,7 @@ class CounterPage extends Component {
                    saveBoxInfo={ props.saveBoxInfo } />
           </div>
 
-          <div className="p2 fit"
-               style={ styles.titleContainer }>
+          <div className="p2">
 
             <div className="flex flex-column"
                  style={ styles.titleContent } >
@@ -160,12 +159,9 @@ class CounterPage extends Component {
 
 const styles = {
   gameContainer: {
-    height: '100%',
-    overflow: 'scroll',
+    height: '90vh',
     position: 'relative',
-  },
-  titleContainer: {
-    height: '100%',
+    overflow: 'hidden',
   },
   titleContent: {
     width: '100%',
