@@ -1,7 +1,7 @@
 import React from 'react';
 import Radium from 'radium';
 
-const Pizza = ({ pizza, replayInProgress }) => {
+const Pizza = ({ pizza, replayInProgress, gameOver }) => {
   const styles = {
     pizza: {
       fontSize: 50,
@@ -12,17 +12,20 @@ const Pizza = ({ pizza, replayInProgress }) => {
     zIndexMin: {
       zIndex: -9999,
     },
+
   };
   if (replayInProgress) {
     return null;
   }
 
   return (
-    <span style={ [styles.pizza, styles.zIndexMin] }>
+    <span className={ gameOver === 0 ? 'bounce' : null }
+          style={ [styles.pizza, styles.zIndexMin] }>
       { pizza.isEaten ? '💩' : '🍕' }
     </span>
   );
 };
 
 export default Radium(Pizza);
+
 

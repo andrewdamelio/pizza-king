@@ -1,0 +1,28 @@
+.bounce {
+  -webkit-animation: bounce 1s infinite; /* Safari 4+ */
+  -moz-animation:    bounce 1s infinite; /* Fx 5+ */
+  -o-animation:      bounce 1s infinite; /* Opera 12+ */
+  animation:         bounce 1s infinite; /* IE 10+, Fx 29+ */
+}
+
+
+@-webkit-keyframes bounce {
+  0% { margin: 0px; }
+  50% { margin-top: 12px; }
+  100% { margin: 0px; }
+}
+@-moz-keyframes bounce {
+  0% { margin: 0px; }
+  50% { margin-top: 12px; }
+  100% { margin: 0px; }
+}
+@-o-keyframes bounce {
+  0% { margin: 0px; }
+  50% { margin-top: 12px; }
+  100% { margin: 0px; }
+}
+@keyframes bounce {
+  0% { margin: 0px; }
+  50% { margin-top: 12px; }
+  100% { margin: 0px; }
+}

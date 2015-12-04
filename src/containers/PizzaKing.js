@@ -114,11 +114,16 @@ class CounterPage extends Component {
   render() {
     const { props } = this;
 
+    const gameOver  = props.pizza.filter(pizza => {
+      return !pizza.isEaten;
+    });
+
     const pizzaParty = props.pizza.map((pizza, idx) => {
       return (
         <Pizza key={ idx }
                pizza={ pizza }
-               replayInProgress={ props.history.get('replay') } />
+               replayInProgress={ props.history.get('replay') }
+               gameOver={ gameOver.size } />
         );
     });
 
