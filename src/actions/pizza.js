@@ -1,6 +1,7 @@
 import Immutable from 'immutable';
+import socket from '../socket/socket';
 import doWorldsCollide from '../utils/doWorldsCollide';
-import { GROW, UPDATE_PIZZA, CREATE_PIZZA  } from '../constants';
+import { GROW, UPDATE_PIZZA, CREATE_PIZZA } from '../constants';
 
 export function createPizza(pizza) {
   return {
@@ -18,8 +19,12 @@ export function updatePizza(pizza) {
 
 export function detectPizza() {
   return (dispatch, getState) => {
-    const wormState = getState().history.get('worms').get(getState().history.get('idx'));
+    const history = getState().history;
+    const game = getState().game;
     const pizza = getState().pizza;
+
+    const playerName = game.get('player');
+    const wormState = history.get(playerName).get(history.get('idx'));
 
     const wormBox = {
       x: wormState.get('positionX'),
@@ -28,7 +33,8 @@ export function detectPizza() {
       height: wormState.get('height'),
     };
 
-    //  ¯\_(ツ)_/¯
+    //           ¯\_(ツ)_/¯
+    //  TODO: FIX THIS MONSTROSITY
     const pizzaCopy = Immutable.List(JSON.parse(JSON.stringify(pizza)));
 
     let dirty = false;
@@ -43,6 +49,7 @@ export function detectPizza() {
       if (doWorldsCollide(wormBox, pizzaBox)) {
         if (!value.isEaten) {
           value.isEaten = true;
+          value.scoredBy = playerName;
           dirty = true;
         }
       }
@@ -52,9 +59,14 @@ export function detectPizza() {
 
     if (dirty) {
       if (wormState.get('size') < 120 ) {
-        dispatch({ type: GROW });
+        dispatch({
+          type: GROW,
+          player: playerName,
+        });
+        socket.emit('grow', playerName);
       }
-      dispatch(updatePizza(pizzaParty));
+      dispatch(updatePizza(Immutable.fromJS(pizzaParty.toJS())));
+      socket.emit('updatePizza', pizzaParty);
     }
   };
 }

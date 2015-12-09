@@ -6,8 +6,8 @@ const Pizza = ({ pizza, replayInProgress, gameOver }) => {
     pizza: {
       fontSize: 50,
       position: 'absolute',
-      top: pizza.y,
-      left: pizza.x,
+      top: pizza.get('y'),
+      left: pizza.get('x'),
     },
     zIndexMin: {
       zIndex: -9999,
@@ -21,7 +21,7 @@ const Pizza = ({ pizza, replayInProgress, gameOver }) => {
   return (
     <span className={ gameOver === 0 ? 'bounce' : null }
           style={ [styles.pizza, styles.zIndexMin] }>
-      { pizza.isEaten ? '💩' : '🍕' }
+      { pizza.get('isEaten') ? '💩' : '🍕' }
     </span>
   );
 };

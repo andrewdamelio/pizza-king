@@ -1,18 +1,16 @@
 import React, { Component, PropTypes } from 'react';
 import Radium from 'radium';
 import { connect } from 'react-redux';
-import getRandomPosition from '../utils/getRandomPosition';
+import socket from '../socket/socket';
 import Pizza from '../components/Pizza';
 import Menu from '../components/Menu';
 import Worm from '../components/Worm';
-
-import { detectPizza, createPizza } from '../actions/pizza';
+import { detectPizza } from '../actions/pizza';
 
 import {
   saveBoxInfo,
   shrink,
   grow,
-  setPosition,
   forward,
   backward,
   up,
@@ -21,102 +19,109 @@ import {
   setReplayMode,
 } from '../actions/history';
 
-const PIZZA_ARMY_SIZE = 12;
-
 function mapStateToProps(state) {
   return {
     history: state.history,
     pizza: state.pizza,
+    game: state.game,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    forward: () => dispatch(forward()),
-    backward: () => dispatch(backward()),
-    up: () => dispatch(up()),
-    down: () => dispatch(down()),
-    grow: () => dispatch(grow()),
-    shrink: () => dispatch(shrink()),
+    forward: (player) => dispatch(forward(player)),
+    backward: (player) => dispatch(backward(player)),
+    up: (player) => dispatch(up(player)),
+    down: (player) => dispatch(down(player)),
+    grow: (player) => dispatch(grow(player)),
+    shrink: (player) => dispatch(shrink(player)),
     detectPizza: () => dispatch(detectPizza()),
-    createPizza: (pizza) => dispatch(createPizza(pizza)),
     updateIndex: (index) => dispatch(updateIndex(index)),
-    setPosition: (posX, posY, direction, size) => dispatch(setPosition(posX, posY, direction, size)),
     setReplayMode: (flag) => dispatch(setReplayMode(flag)),
-    saveBoxInfo: (width, height) => dispatch(saveBoxInfo(width, height)),
+    saveBoxInfo: (width, height, player) => dispatch(saveBoxInfo(width, height, player)),
   };
 }
 
 class CounterPage extends Component {
   static propTypes = {
+    game: PropTypes.object.isRequired,
     history: PropTypes.object.isRequired,
     pizza: PropTypes.object.isRequired,
     forward: PropTypes.func.isRequired,
     backward: PropTypes.func.isRequired,
     up: PropTypes.func.isRequired,
     down: PropTypes.func.isRequired,
-    setPosition: PropTypes.func.isRequired,
     setReplayMode: PropTypes.func.isRequired,
     grow: PropTypes.func.isRequired,
     updateIndex: PropTypes.func.isRequired,
     shrink: PropTypes.func.isRequired,
-    createPizza: PropTypes.func.isRequired,
     detectPizza: PropTypes.func.isRequired,
   };
 
   _handleMovement = (e) => {
     const { props } = this;
+    const player = props.game.get('player');
 
     if ( e.keyCode >= 37 && e.keyCode <= 40 && !props.history.get('replay')) {
       if (e.keyCode === 38) {
-        props.up();
+        props.up(player);
+        socket.emit('moved', { player: player, direction: 'up' });
       } else if (e.keyCode === 40) {
-        props.down();
+        props.down(player);
+        socket.emit('moved', { player: player, direction: 'down' });
       } else if (e.keyCode === 37) {
-        props.backward();
+        props.backward(player);
+        socket.emit('moved', { player: player, direction: 'backward' });
       } else if (e.keyCode === 39) {
-        props.forward();
+        props.forward(player);
+        socket.emit('moved', { player: player, direction: 'forward' });
       }
       props.detectPizza();
     }
 
     // HAckz
     if (e.keyCode === 187) {
-      props.grow();
+      props.grow(player);
+      socket.emit('grow', player);
     } else if (e.keyCode === 189) {
-      props.shrink();
+      props.shrink(player);
+      socket.emit('shrink', player);
     }
   }
 
   _handleReplay = () => {
     const { props } = this;
-
-    if (props.history.size > 0) {
-      props.setReplayMode(true);
-      props.history.get('worms').map((worm, idx) => {
-        setTimeout(() => {
-          props.updateIndex(idx);
-          if ((idx + 1) === props.history.get('worms').size) {
-            props.setReplayMode(false);
-          }
-        }, 25 * (idx + 1));
-      });
-    }
+    const data = {
+      history: props.history,
+      game: props.game,
+    };
+    socket.emit('replay', data);
   }
 
   componentDidMount() {
     window.addEventListener('keydown', this._handleMovement);
-    for (let i = 1; i <= PIZZA_ARMY_SIZE; i++) {
-      this.props.createPizza(getRandomPosition(), i);
-    }
   }
 
   render() {
     const { props } = this;
 
     const gameOver  = props.pizza.filter(pizza => {
-      return !pizza.isEaten;
+      return !pizza.get('isEaten');
     });
+
+    const worms = (
+      <div>
+        <Worm  player={'player1'}
+               history={ props.history }
+               pizza={ props.pizza }
+               saveBoxInfo={ props.saveBoxInfo } />
+
+        <Worm  player={'player2'}
+               history={ props.history }
+               pizza={ props.pizza }
+               saveBoxInfo={ props.saveBoxInfo } />
+    </div>
+    );
 
     const pizzaParty = props.pizza.map((pizza, idx) => {
       return (
@@ -130,24 +135,22 @@ class CounterPage extends Component {
     return (
       <section>
         <Menu showReplay={ this._handleReplay }
-              history={ props.history }
-              updateIndex={ props.updateIndex } />
+              game={ props.game }
+              pizza={ props.pizza }
+              history={ props.history }/>
 
-        <div className="flex flex-row">
+        <div className="">
           <div style={ styles.gameContainer }
-               className="border flex-grow">
+               className="border">
             { pizzaParty}
-
-            <Worm  history={ props.history }
-                   pizza={ props.pizza }
-                   saveBoxInfo={ props.saveBoxInfo } />
+            { worms }
           </div>
 
           <div className="p2">
 
-            <div className="flex flex-column"
+            <div className=""
                  style={ styles.titleContent } >
-              <div style={ styles.titleEmoji }>👑</div>
+              <a href="http://github.com/andrewdamelio/pizza-king" style={ styles.titleEmoji }>👑</a>
               <div style={ styles.titleText }>The Pizza King</div>
             </div>
           </div>
@@ -159,19 +162,21 @@ class CounterPage extends Component {
 
 const styles = {
   gameContainer: {
-    height: '90vh',
+    margin: 'auto',
+    height: '550px',
+    width: '1450px',
     position: 'relative',
     overflow: 'hidden',
   },
   titleContent: {
-    width: '100%',
     textAlign: 'center',
   },
   titleText: {
     fontSize: '1.5em',
   },
   titleEmoji: {
-    fontSize: '8em',
+    fontSize: '5.5em',
+    textDecoration: 'none',
   },
 };
 
