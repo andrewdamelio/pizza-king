@@ -6,10 +6,30 @@ import {
   SHRINK,
   UPDATE_INDEX,
   SET_REPLAY_MODE,
-  SAVE_HISTORY,
   SAVE_BOX_INFO,
+  RESET_GAME,
 } from '../constants';
 
+const initialState = fromJS({
+  player1: [{
+    positionX: 25,
+    positionY: 25,
+    direction: 1,
+    size: 10,
+    width: 13,
+    height: 15,
+  }],
+  player2: [{
+    positionX: 1400,
+    positionY: 25,
+    direction: 1,
+    size: 10,
+    width: 13,
+    height: 15,
+  }],
+  replay: false,
+  idx: 0,
+});
 
 const counterReducer = handleActions({
   [SET_REPLAY_MODE]: (state, action) => {
@@ -22,16 +42,11 @@ const counterReducer = handleActions({
       idx: action.index,
     });
   },
-  [SAVE_HISTORY]: (state, action) => {
-    return state.merge({
-      worms: state.get('worms').push(action.payload.worms),
-      idx: state.get('idx') + 1,
-    });
-  },
   [MOVEMENT]: (state, action) => {
     const idx = state.get('idx');
-    const worm = state.get('worms').get(idx);
-    const velocity = 15;
+    const worm = state.get(action.player).get(idx);
+    const velocity = 20;
+
     let direction = worm.get('direction');
     let positionX = worm.get('positionX');
     let positionY = worm.get('positionY');
@@ -54,55 +69,79 @@ const counterReducer = handleActions({
       positionY: positionY,
     });
 
-    return state.merge({
-      worms: state.get('worms').push(newWorm),
-      idx: state.get('idx') + 1,
-    });
+    let newState;
+    if (action.player === 'player1') {
+      newState = state.merge({
+        player1: state.get(action.player).push(newWorm),
+        player2: state.get('player2').push(state.get('player2').last()),
+        idx: state.get('idx') + 1,
+      });
+    } else if (action.player === 'player2') {
+      newState = state.merge({
+        player2: state.get(action.player).push(newWorm),
+        player1: state.get('player1').push(state.get('player1').last()),
+        idx: state.get('idx') + 1,
+      });
+    }
+
+    return newState;
   },
   [SAVE_BOX_INFO]: (state, action) => {
     const idx = state.get('idx');
-    const worm = state.get('worms').get(idx);
+    const worm = state.get(action.player).get(idx);
     const newWorm = worm.merge({
       width: action.payload.width,
       height: action.payload.height,
     });
 
-    return state.merge({
-      worms: state.get('worms').set(idx, newWorm),
-    });
+    let newState;
+    if (action.player === 'player1') {
+      newState = state.merge({
+        player1: state.get('player1').set(idx, newWorm),
+      });
+    } else if (action.player === 'player2') {
+      newState = state.merge({
+        player2: state.get('player2').set(idx, newWorm),
+      });
+    }
+    return newState;
   },
-  [GROW]: (state) => {
+  [GROW]: (state, action) => {
     const idx = state.get('idx');
-    const worm = state.get('worms').get(idx);
-    const newWorm = worm.update('size', (value) => value < 120 ? value + 10 :
-      value);
+    const worm = state.get(action.player).get(idx);
+    const newWorm = worm.update('size', (value) => value < 120 ? value + 10 : value);
 
-    return state.merge({
-      worms: state.get('worms').push(newWorm),
-      idx: state.get('idx') + 1,
-    });
+    let newState;
+    if (action.player === 'player1') {
+      newState = state.merge({
+        player1: state.get('player1').set(idx, newWorm),
+      });
+    } else if (action.player === 'player2') {
+      newState = state.merge({
+        player2: state.get('player2').set(idx, newWorm),
+      });
+    }
+    return newState;
   },
-  [SHRINK]: (state) => {
+  [SHRINK]: (state, action) => {
     const idx = state.get('idx');
-    const worm = state.get('worms').get(idx);
-    const newWorm = worm.update('size', (value) => value > 10 ? value - 10 :
-      value);
+    const worm = state.get(action.player).get(idx);
+    const newWorm = worm.update('size', (value) => value > 10 ? value - 10 : value);
 
-    return state.merge({
-      worms: state.get('worms').push(newWorm),
-      idx: state.get('idx') + 1,
-    });
+    let newState;
+    if (action.player === 'player1') {
+      newState = state.merge({
+        player1: state.get('player1').set(idx, newWorm),
+      });
+    } else if (action.player === 'player2') {
+      newState = state.merge({
+        player2: state.get('player2').set(idx, newWorm),
+      });
+    }
+    return newState;
   },
-}, fromJS({
-  worms: [{
-    positionX: 125,
-    positionY: 125,
-    direction: 1,
-    size: 10,
-    width: 13,
-    height: 15,
-  }],
-  replay: false,
-  idx: 0,
-}));
+  [RESET_GAME]: () => {
+    return initialState;
+  },
+}, initialState);
 export default counterReducer;

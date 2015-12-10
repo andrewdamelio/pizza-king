@@ -5,6 +5,7 @@ import Radium from 'radium';
 class Worm extends Component {
 
   static propTypes = {
+    player: PropTypes.string.isRequired,
     pizza: PropTypes.object.isRequired,
     history: PropTypes.object.isRequired,
     saveBoxInfo: PropTypes.func.isRequired,
@@ -15,20 +16,27 @@ class Worm extends Component {
     const replayInProgress = props.history.get('replay');
     const idx = props.history.get('idx');
     const oldIdx = prevProps.history.get('idx');
-    const worm = props.history.get('worms').get(idx);
-    const oldWorm = prevProps.history.get('worms').get(oldIdx);
+    const worm = props.history.get(props.player).get(idx);
+    const oldWorm = prevProps.history.get(props.player).get(oldIdx);
 
 
     if (worm && oldWorm && (oldWorm.get('size') !== worm.get('size')) && !replayInProgress) {
-      props.saveBoxInfo(refs.worm.offsetWidth, refs.worm.offsetHeight);
+      props.saveBoxInfo(refs.worm.offsetWidth, refs.worm.offsetHeight, props.player);
     }
   }
 
   render() {
-    const {  pizza, history } = this.props;
-    const replayInProgress = history.get('replay');
-    const idx = history.get('idx');
-    const worm = history.get('worms').get(idx);
+    const { props } = this;
+    const replayInProgress = props.history.get('replay');
+    let idx;
+    if (replayInProgress) {
+      idx = props.history.get('idx');
+    } else {
+      idx = props.history.get(props.player).size - 1;
+    }
+
+
+    const worm = props.history.get(props.player).get(idx);
 
     if (!worm) {
       return null;
@@ -50,15 +58,32 @@ class Worm extends Component {
       fontSize: worm.get('size'),
     };
 
-    const gameOver = pizza.filter(value => {
-      return !value.isEaten;
+    const gameOver = props.pizza.filter((value) => {
+      return !value.get('isEaten');
     });
 
+    const player1 = props.pizza.filter((value) => {
+      if (value.get('scoredBy') === 'player1') {
+        return value.get('scoredBy');
+      }
+    });
+    const player2 = props.pizza.filter((value) => {
+      if (value.get('scoredBy') === 'player2') {
+        return value.get('scoredBy');
+      }
+    });
+
+    let showCrown;
+    if (props.player === 'player1') {
+      showCrown = player1.size > player2.size ? true : false;
+    } else if (props.player === 'player2') {
+      showCrown = player2.size > player1.size ? true : false;
+    }
     return (
       <div ref="worm"
            style={{ ...player, ...{ zIndex: -9999 } }}>
         🐛
-        { gameOver.size === 0 && !replayInProgress
+        { gameOver.size === 0 && showCrown && !replayInProgress
           ?  <span style={ crown }>👑</span>
           : ''
         }

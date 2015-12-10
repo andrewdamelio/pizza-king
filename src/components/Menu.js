@@ -1,30 +1,34 @@
 import React, { PropTypes } from 'react';
+import socket from '../socket/socket';
 
-const Menu = ({ showReplay, history, updateIndex }) => {
-  const replayInProgress = history.get('replay');
-  const wormHistory = history.get('worms');
+const Menu = ({ showReplay, game, pizza, history }) => {
+  const player = game.get('player') || 'Spectator';
+  const playerColor = (player === 'player1') ? 'orange' : 'green';
+  const gameOver = pizza.filter((value) => {
+    return !value.get('isEaten');
+  });
+
+  function handleClick() {
+    socket.emit('restartGame');
+  }
 
   return (
-    <nav className="border-bottom">
-      <button className="btn"
-              disabled={ replayInProgress || wormHistory.size === 0 }
+    <nav className="border-bottom flex flex-justify">
+      <div>
+      <button className="btn black"
+              style={ gameOver.size !== 0 || history.get('replay') ? { ...styles.hidden } : null }
               onClick={ showReplay }>Replay</button>
+      </div>
 
-      <input type="range"
-             disabled={ replayInProgress }
-             min="0"
-             max={ wormHistory.size > 0 ? wormHistory.size - 1 : wormHistory.size  }
-             onBlur={ (e) => {
-               updateIndex(wormHistory.size - 1);
-               e.target.value = 0;
-             }}
-             onMouseUp={ (e) => {
-               updateIndex(wormHistory.size - 1);
-               e.target.value = 0;
-             }}
-             onChange={ (e) => {
-               updateIndex(e.target.value);
-             }} />
+      <div className={ `bold caps p1 black bg-${ playerColor }` }>
+        { player }
+      </div>
+
+      <div>
+        <button className="btn black"
+                style={ gameOver.size !== 0 || history.get('replay') ? { ...styles.hidden } : null }
+                onClick={ handleClick }>Play again</button>
+      </div>
     </nav>
   );
 };
@@ -32,8 +36,17 @@ const Menu = ({ showReplay, history, updateIndex }) => {
 Menu.displayName = 'Menu';
 Menu.propTypes = {
   showReplay: PropTypes.func.isRequired,
+  game: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
-  updateIndex: PropTypes.func.isRequired,
+  pizza: PropTypes.object.isRequired,
+};
+
+const styles = {
+  hidden: {
+    visibility: 'hidden',
+    opacity: 0,
+    zIndex: 0,
+  },
 };
 
 export default Menu;

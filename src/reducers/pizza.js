@@ -8,11 +8,7 @@ const pizzaReducer = handleActions({
     return action.pizza;
   },
   [CREATE_PIZZA]: (state, action) => {
-    return state.merge(state.push({
-      isEaten: false,
-      x: action.pizza[0],
-      y: action.pizza[1],
-    }));
+    return action.pizza;
   },
 }, fromJS([]));
 

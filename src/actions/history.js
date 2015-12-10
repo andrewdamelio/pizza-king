@@ -3,10 +3,18 @@ import {
   SAVE_BOX_INFO,
   SHRINK,
   GROW,
-  SET_POSITION,
   UPDATE_INDEX,
   SET_REPLAY_MODE,
+  RESET_GAME,
 } from '../constants';
+
+
+export function resetGame() {
+  return {
+    type: RESET_GAME,
+  };
+}
+
 
 export function setReplayMode(flag) {
   return {
@@ -25,9 +33,10 @@ export function updateIndex(index) {
 }
 
 
-export function saveBoxInfo(wormWidth, wormHeight) {
+export function saveBoxInfo(wormWidth, wormHeight, player) {
   return {
     type: SAVE_BOX_INFO,
+    player: player,
     payload: {
       width: wormWidth,
       height: wormHeight,
@@ -35,49 +44,38 @@ export function saveBoxInfo(wormWidth, wormHeight) {
   };
 }
 
-export function setPosition(posX, posY, direction, size) {
-  return {
-    type: SET_POSITION,
-    payload: {
-      positionX: posX,
-      positionY: posY,
-      direction: direction,
-      size: size,
-    },
-  };
-}
-
-export function shrink() {
+export function shrink(player) {
   return (dispatch) => {
     dispatch({
       type: SHRINK,
+      player: player,
     });
   };
 }
 
-export function grow() {
+export function grow(player) {
   return (dispatch) => {
     dispatch({
       type: GROW,
+      player: player,
     });
   };
 }
 
-
-function checkEdges(getState, direction) {
+function checkEdges(getState, direction, player) {
   const history = getState().history;
   const idx = history.get('idx');
-  const worm = history.get('worms').get(idx);
+  const worm = history.get(player).get(idx);
 
   switch (direction) {
   case 'right':
-    return worm.get('positionX') < window.innerWidth - 190;
+    return worm.get('positionX') < 1440;
   case 'left':
-    return worm.get('positionX') > 0;
+    return worm.get('positionX') > -150;
   case 'up':
-    return worm.get('positionY') > 0;
+    return worm.get('positionY') > -150;
   case 'down':
-    return worm.get('positionY') < window.innerHeight - 37;
+    return worm.get('positionY') < 550;
   default:
     break;
   }
@@ -85,7 +83,7 @@ function checkEdges(getState, direction) {
 
 export function forward(player) {
   return (dispatch, getState) => {
-    if (checkEdges(getState, 'right')) {
+    if (checkEdges(getState, 'right', player)) {
       dispatch({
         type: MOVEMENT,
         payload: 'forward',
@@ -97,7 +95,7 @@ export function forward(player) {
 
 export function backward(player) {
   return (dispatch, getState) => {
-    if (checkEdges(getState, 'left')) {
+    if (checkEdges(getState, 'left', player)) {
       dispatch({
         type: MOVEMENT,
         payload: 'backward',
@@ -109,7 +107,7 @@ export function backward(player) {
 
 export function up(player) {
   return (dispatch, getState) => {
-    if (checkEdges(getState, 'up')) {
+    if (checkEdges(getState, 'up', player)) {
       dispatch({
         type: MOVEMENT,
         payload: 'up',
@@ -121,7 +119,7 @@ export function up(player) {
 
 export function down(player) {
   return (dispatch, getState) => {
-    if (checkEdges(getState, 'down')) {
+    if (checkEdges(getState, 'down', player)) {
       dispatch({
         type: MOVEMENT,
         payload: 'down',

@@ -11,7 +11,7 @@ import {
 
 export default function configureStore(initialState) {
   const store = compose(
-    applyMiddleware(thunkMiddleware, logger),
+    __DEV__ ? applyMiddleware(thunkMiddleware, logger) : applyMiddleware(thunkMiddleware),
     devTools(),
   )(createStore)(rootReducer, initialState);
 
