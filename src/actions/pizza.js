@@ -1,7 +1,8 @@
 import Immutable from 'immutable';
 import socket from '../socket/socket';
 import doWorldsCollide from '../utils/doWorldsCollide';
-import { GROW, UPDATE_PIZZA, CREATE_PIZZA } from '../constants';
+import { SPEED_UP, GROW, UPDATE_PIZZA, CREATE_PIZZA } from '../constants';
+import { audioCrunch, audioPowerup } from '../utils/audioFX';
 
 export function createPizza(pizza) {
   return {
@@ -38,6 +39,8 @@ export function detectPizza() {
     const pizzaCopy = Immutable.List(JSON.parse(JSON.stringify(pizza)));
 
     let dirty = false;
+    let grow = false;
+    let powerup = false;
     const pizzaParty = pizzaCopy.map((value) => {
       const pizzaBox = {
         x: value.x,
@@ -48,9 +51,14 @@ export function detectPizza() {
 
       if (doWorldsCollide(wormBox, pizzaBox)) {
         if (!value.isEaten) {
+          dirty = true;
           value.isEaten = true;
           value.scoredBy = playerName;
-          dirty = true;
+          if (value.powerup) {
+            powerup = true;
+          } else {
+            grow = true;
+          }
         }
       }
 
@@ -58,13 +66,30 @@ export function detectPizza() {
     });
 
     if (dirty) {
-      if (wormState.get('size') < 120 ) {
+      if (grow && wormState.get('size') < 120 ) {
+        audioCrunch.currentTime = 0;
+        audioCrunch.volume = 0.2;
+        audioCrunch.play();
+
         dispatch({
           type: GROW,
           player: playerName,
         });
         socket.emit('grow', playerName);
       }
+
+      if (powerup) {
+        audioPowerup.currentTime = 0;
+        audioPowerup.volume = 0.2;
+        audioPowerup.play();
+
+        dispatch({
+          type: SPEED_UP,
+          player: playerName,
+        });
+        socket.emit('speedUp', playerName);
+      }
+
       dispatch(updatePizza(Immutable.fromJS(pizzaParty.toJS())));
       socket.emit('updatePizza', pizzaParty);
     }

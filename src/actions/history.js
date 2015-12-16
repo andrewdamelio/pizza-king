@@ -6,6 +6,7 @@ import {
   UPDATE_INDEX,
   SET_REPLAY_MODE,
   RESET_GAME,
+  SPEED_UP,
 } from '../constants';
 
 
@@ -41,6 +42,15 @@ export function saveBoxInfo(wormWidth, wormHeight, player) {
       width: wormWidth,
       height: wormHeight,
     },
+  };
+}
+
+export function speedUp(player) {
+  return (dispatch) => {
+    dispatch({
+      type: SPEED_UP,
+      player: player,
+    });
   };
 }
 

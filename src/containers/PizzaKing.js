@@ -4,9 +4,10 @@ import { connect } from 'react-redux';
 import socket from '../socket/socket';
 import Pizza from '../components/Pizza';
 import Menu from '../components/Menu';
+import Chat from '../components/Chat';
 import Worm from '../components/Worm';
 import { detectPizza } from '../actions/pizza';
-
+import { toggleVictory } from '../actions/game';
 import {
   saveBoxInfo,
   shrink,
@@ -19,11 +20,15 @@ import {
   setReplayMode,
 } from '../actions/history';
 
+import { audioVictory } from '../utils/audioFX';
+
+
 function mapStateToProps(state) {
   return {
     history: state.history,
     pizza: state.pizza,
     game: state.game,
+    chat: state.chat,
   };
 }
 
@@ -39,6 +44,7 @@ function mapDispatchToProps(dispatch) {
     updateIndex: (index) => dispatch(updateIndex(index)),
     setReplayMode: (flag) => dispatch(setReplayMode(flag)),
     saveBoxInfo: (width, height, player) => dispatch(saveBoxInfo(width, height, player)),
+    toggleVictory: () => dispatch(toggleVictory()),
   };
 }
 
@@ -47,6 +53,7 @@ class CounterPage extends Component {
     game: PropTypes.object.isRequired,
     history: PropTypes.object.isRequired,
     pizza: PropTypes.object.isRequired,
+    chat: PropTypes.object.isRequired,
     forward: PropTypes.func.isRequired,
     backward: PropTypes.func.isRequired,
     up: PropTypes.func.isRequired,
@@ -56,6 +63,7 @@ class CounterPage extends Component {
     updateIndex: PropTypes.func.isRequired,
     shrink: PropTypes.func.isRequired,
     detectPizza: PropTypes.func.isRequired,
+    toggleVictory: PropTypes.func.isRequired,
   };
 
   _handleMovement = (e) => {
@@ -102,11 +110,24 @@ class CounterPage extends Component {
     window.addEventListener('keydown', this._handleMovement);
   }
 
+  componentWillUpdate(nextProps) {
+    const gameOver  = nextProps.pizza.filter(pizza => {
+      return !pizza.has('powerup') && !pizza.get('isEaten');
+    });
+
+    if (gameOver.size === 0 && !nextProps.game.get('victory')) {
+      audioVictory.currentTime = 0;
+      audioVictory.volume = 0.2;
+      audioVictory.play();
+      nextProps.toggleVictory();
+    }
+  }
+
   render() {
     const { props } = this;
 
     const gameOver  = props.pizza.filter(pizza => {
-      return !pizza.get('isEaten');
+      return !pizza.has('powerup') && !pizza.get('isEaten');
     });
 
     const worms = (
@@ -136,8 +157,8 @@ class CounterPage extends Component {
       <section>
         <Menu showReplay={ this._handleReplay }
               game={ props.game }
-              pizza={ props.pizza }
-              history={ props.history }/>
+              history={ props.history }
+              gameOver={ gameOver.size } />
 
         <div className="">
           <div style={ styles.gameContainer }
@@ -146,10 +167,9 @@ class CounterPage extends Component {
             { worms }
           </div>
 
-          <div className="p2">
-
-            <div className=""
-                 style={ styles.titleContent } >
+          <div className="p2 flex flex-row">
+            <Chat chat={ props.chat } />
+            <div style={ styles.titleContent } >
               <a href="http://github.com/andrewdamelio/pizza-king" style={ styles.titleEmoji }>👑</a>
               <div style={ styles.titleText }>The Pizza King</div>
             </div>
@@ -167,6 +187,7 @@ const styles = {
     width: '1450px',
     position: 'relative',
     overflow: 'hidden',
+    background: 'url(dist/bg.jpg)',
   },
   titleContent: {
     textAlign: 'center',

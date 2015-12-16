@@ -1,6 +1,6 @@
 import { handleActions } from 'redux-actions';
 import { fromJS } from 'immutable';
-import { JOIN_GAME, ADD_PLAYER, REMOVE_PLAYER } from '../constants';
+import { TOGGLE_VICTORY, JOIN_GAME, ADD_PLAYER, REMOVE_PLAYER } from '../constants';
 
 const gameReducer = handleActions({
   [ADD_PLAYER]: (state, action) => {
@@ -40,9 +40,15 @@ const gameReducer = handleActions({
       players: state.get('players').filter(value => value !== action.player),
     });
   },
+  [TOGGLE_VICTORY]: (state) => {
+    return state.merge({
+      victory: !state.get('victory'),
+    });
+  },
 }, fromJS({
   players: [],
   player: null,
+  victory: false,
 }));
 
 export default gameReducer;

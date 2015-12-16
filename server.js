@@ -11,13 +11,6 @@ const socketIo = require('socket.io');
 const PORT = process.env.PORT || 8080;
 const DOMAIN = '0.0.0.0';
 
-function getRandomPosition() {
-  const xLimit = 1200;
-  const yLimit = 450;
-  const randomX = Math.floor(Math.random() * xLimit) + 15;
-  const randomY = Math.floor(Math.random() * yLimit) + 15;
-  return [randomX, randomY];
-}
 
 if (process.env.NODE_ENV !== 'production') {
   winston.info('Bundling webpack... Please wait.');
@@ -46,26 +39,18 @@ server.listen(PORT, (err) => {
   winston.info(`Listening at http://${ DOMAIN }:${ PORT }`);
 });
 
+var createPizza = require('./src/utils/createPizza');
 
-function createPizza() {
-  const PIZZA_ARMY_SIZE = 21;
-  var res = [];
-  for (var i = 1; i <= PIZZA_ARMY_SIZE; i++) {
-    var pos = getRandomPosition();
-    res.push({
-      isEaten: false,
-      x: pos[0],
-      y: pos[1],
-      scoredBy: null,
-    });
-  }
-  return res;
-}
 
 var users = {
   player1: null,
   player2: null,
 };
+
+var chatLog = [{
+  name: "bot",
+  msg: "Hello, welcome to Pizza King",
+}];
 
 var pizzaData;
 var replayFlag = false;
@@ -87,7 +72,7 @@ io.on('connection', (socket) => {
     io.sockets.emit('resetGame');
     pizzaData = createPizza();
     io.sockets.emit('updatePizza', pizzaData);
-
+    io.sockets.emit('chatMsg', chatLog);
     socket.emit('welcome', {
       player: user,
       players: users,
@@ -113,6 +98,14 @@ io.on('connection', (socket) => {
       winston.info('BYE-3', users);
     });
 
+    socket.on('chatMsg', (data) => {
+      chatLog.push({
+        name: user,
+        msg: data
+      });
+      io.sockets.emit('chatMsg', chatLog);
+    });
+
     socket.on('replay', (data) => {
       io.sockets.emit('replay', data);
     });
@@ -127,6 +120,10 @@ io.on('connection', (socket) => {
 
     socket.on('shrink', (data) => {
       socket.broadcast.emit('shrink', data);
+    });
+
+    socket.on('speedUp', (data) => {
+      socket.broadcast.emit('speedUp', data);
     });
 
     socket.on('updatePizza', (data) => {

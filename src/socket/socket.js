@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
 
-const host = __DEV__ ? 'localhost:8080' : 'YOUR_SERVER';
+const host = __DEV__ ? 'localhost:8080' : 'https://pizzaking.herokuapp.com/';
 
 const socket = io(host).connect();
 

@@ -38,7 +38,7 @@ class CounterPage extends Component {
 const styles = {
   base: {
     backgroundColor: 'rgba(0, 0, 0, 0.25)',
-    transition: 'visibility 250ms, opacity 250ms',
+    transition: 'visibility 550ms, opacity 550ms',
   },
   players: {
     fontSize: '3em',
@@ -55,12 +55,11 @@ const styles = {
   visible: {
     visibility: 'visible',
     opacity: 1,
-    zIndex: 999,
+    zIndex: 1,
   },
   hidden: {
     visibility: 'hidden',
     opacity: 0,
-    zIndex: 0,
   },
 };
 

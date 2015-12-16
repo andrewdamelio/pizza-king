@@ -4,6 +4,7 @@ import {
   MOVEMENT,
   GROW,
   SHRINK,
+  SPEED_UP,
   UPDATE_INDEX,
   SET_REPLAY_MODE,
   SAVE_BOX_INFO,
@@ -18,6 +19,7 @@ const initialState = fromJS({
     size: 10,
     width: 13,
     height: 15,
+    speed: 20,
   }],
   player2: [{
     positionX: 1400,
@@ -26,12 +28,31 @@ const initialState = fromJS({
     size: 10,
     width: 13,
     height: 15,
+    speed: 20,
   }],
   replay: false,
   idx: 0,
 });
 
 const counterReducer = handleActions({
+  [SPEED_UP]: (state, action) => {
+    const idx = state.get('idx');
+    const worm = state.get(action.player).get(idx);
+    const newWorm = worm.update('speed', (value) => value * 2);
+    let newState;
+
+    if (action.player === 'player1') {
+      newState = state.merge({
+        player1: state.get('player1').set(idx, newWorm),
+      });
+    } else if (action.player === 'player2') {
+      newState = state.merge({
+        player2: state.get('player2').set(idx, newWorm),
+      });
+    }
+
+    return newState;
+  },
   [SET_REPLAY_MODE]: (state, action) => {
     return state.merge({
       replay: action.payload.flag,
@@ -45,7 +66,7 @@ const counterReducer = handleActions({
   [MOVEMENT]: (state, action) => {
     const idx = state.get('idx');
     const worm = state.get(action.player).get(idx);
-    const velocity = 20;
+    const velocity = worm.get('speed');
 
     let direction = worm.get('direction');
     let positionX = worm.get('positionX');

@@ -1,15 +1,29 @@
 import { fromJS } from 'immutable';
+import { audioCrunch } from '../utils/audioFX';
+
+export function updateLog(actions, log) {
+  actions.updateLog(fromJS(log));
+}
 
 export function updatePizza(actions, pizza) {
   actions.updatePizza(fromJS(pizza));
 }
 
 export function resetGame(actions) {
+  actions.toggleVictory();
+  audioCrunch.currentTime = 0;
+  audioCrunch.volume = 0.2;
+  audioCrunch.play();
+
   actions.resetGame();
 }
 
 export function grow(actions, player) {
   actions.grow(player);
+}
+
+export function speedUp(actions, player) {
+  actions.speedUp(player);
 }
 
 export function shrink(actions, player) {

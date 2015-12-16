@@ -1,7 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import Radium from 'radium';
 
-
 class Worm extends Component {
 
   static propTypes = {
@@ -50,16 +49,16 @@ class Worm extends Component {
     };
 
     const player = {
+      fontSize: worm.get('size'),
       position: 'absolute',
       top: worm.get('positionY'),
       left: worm.get('positionX'),
       transform: `scaleX(${worm.get('direction')})`,
       transition: 'transform 0.2s ease',
-      fontSize: worm.get('size'),
     };
 
     const gameOver = props.pizza.filter((value) => {
-      return !value.get('isEaten');
+      return !value.has('powerup') && !value.get('isEaten');
     });
 
     const player1 = props.pizza.filter((value) => {
@@ -79,9 +78,10 @@ class Worm extends Component {
     } else if (props.player === 'player2') {
       showCrown = player2.size > player1.size ? true : false;
     }
+
     return (
       <div ref="worm"
-           style={{ ...player, ...{ zIndex: -9999 } }}>
+           style={{ ...player }}>
         🐛
         { gameOver.size === 0 && showCrown && !replayInProgress
           ?  <span style={ crown }>👑</span>

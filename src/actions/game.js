@@ -1,4 +1,4 @@
-import { JOIN_GAME, ADD_PLAYER, REMOVE_PLAYER } from '../constants';
+import { TOGGLE_VICTORY, JOIN_GAME, ADD_PLAYER, REMOVE_PLAYER } from '../constants';
 
 export function joinGame(data) {
   return {
@@ -22,3 +22,10 @@ export function removePlayer(player) {
     player: player,
   };
 }
+
+export function toggleVictory() {
+  return {
+    type: TOGGLE_VICTORY,
+  };
+}
+
